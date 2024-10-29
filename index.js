@@ -48,29 +48,25 @@ app.get("/pizze/:id", (req, res) => {
 
 app.post("/naruci", (req, res) => {
     const lista = [];
-    const narudzba = req.body;
-    console.log(narudzba);
-    const kljucevi = Object.keys(narudzba);
-    console.log(kljucevi);
-    for(let kljuc of kljucevi) {
-        if (!(kljuc.includes('pizza') && kljuc.includes('velicina') && kljuc.includes('kolicina'))) {
-            res.send('Niste poslali sve potrebne podatke za narudžbu!');
-            return; 
-        }
-        else {
-            lista.push(narudzba);
-            res.send(`Narudžba za pizze: ${narudzba}`)
-        }
-    }
-    res.send(`Vaša narudžba za ${narudzba.pizza} (${narudzba.velicina}) je uspješno
-    zaprimljena!`);
-    for(let kljuc of kljucevi){
-        if (kljuc.pizza != 'Margherita' && kljuc.pizza !='Capriciosa' && kljuc.pizza != 'Vegetariana' && kljuc.pizza != '4 sira'){
-            return res.send("Pizza ne postoji");
-        }
-    }
+    const narudzbe = req.body; 
 
-})
+    console.log(narudzbe);
+
+    for (let narudzba of narudzbe) {
+        const kljucevi = Object.keys(narudzba);
+        if (!(kljucevi.includes('pizza') && kljucevi.includes('velicina') && kljucevi.includes('kolicina'))) {
+            return res.status(400).send('Niste poslali sve potrebne podatke za narudžbu!');
+        }
+        const postojiPizza = pizze.some(pizze => pizze.naziv === narudzba.pizza);
+        if (!postojiPizza) {
+            return res.status(400).send(`Pizza "${narudzba.pizza}" ne postoji na jelovniku.`);
+        }
+        lista.push(narudzba);
+    }
+    const narucenePizze = lista.map(narudzba => `${narudzba.pizza} (${narudzba.velicina}) (${narudzba.kolicina})`).join(", ");
+    res.send(`Vaša narudžba za: ${narucenePizze} je uspješno zaprimljena!`);
+});
+
 
 const port=3000;
 
