@@ -48,24 +48,42 @@ app.get("/pizze/:id", (req, res) => {
 
 app.post("/naruci", (req, res) => {
     const lista = [];
-    const narudzbe = req.body; 
+    const narudzbe = req.body;
 
-    console.log(narudzbe);
+    if (!narudzbe.prezime || !narudzbe.adresa || !narudzbe.broj_telefona) {
+        return res.status(400).send('Niste poslali sve potrebne podatke o korisniku!');
+    }
 
-    for (let narudzba of narudzbe) {
+    let cijena = 0;
+
+    for (let narudzba of narudzbe.narudzba) {
         const kljucevi = Object.keys(narudzba);
+
         if (!(kljucevi.includes('pizza') && kljucevi.includes('velicina') && kljucevi.includes('kolicina'))) {
             return res.status(400).send('Niste poslali sve potrebne podatke za narudžbu!');
         }
-        const postojiPizza = pizze.some(pizze => pizze.naziv === narudzba.pizza);
-        if (!postojiPizza) {
+
+        const postoji = pizze.find(p => p.naziv === narudzba.pizza);
+        if (!postoji) {
             return res.status(400).send(`Pizza "${narudzba.pizza}" ne postoji na jelovniku.`);
         }
+
+        cijena += postoji.cijena * narudzba.kolicina;
+
         lista.push(narudzba);
     }
+
     const narucenePizze = lista.map(narudzba => `${narudzba.pizza} (${narudzba.velicina}) (${narudzba.kolicina})`).join(", ");
-    res.send(`Vaša narudžba za: ${narucenePizze} je uspješno zaprimljena!`);
+    res.json({
+        narudzba: lista,
+        prezime: narudzbe.prezime,
+        adresa: narudzbe.adresa,
+        broj_telefona: narudzbe.broj_telefona,
+        message: `Vaša narudžba za ${narucenePizze} je uspješno zaprimljena!`,
+        ukupna_cijena: cijena
+    });
 });
+
 
 
 const port=3000;
