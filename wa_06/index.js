@@ -59,7 +59,7 @@ app.get("/zaposlenici/:id", async (req, res) => {
 app.post("/zaposlenici", async (req, res) => {
     let zaposlenik = req.body;
     let kljucevi = Object.keys(zaposlenik);
-    for(let kljuc of ['id', 'ime', 'prezime']){
+    for(let kljuc of ['id', 'ime', 'prezime', 'god_staza', 'pozicija']){
         if (!(kljucevi.includes(kljuc))){
             return res.status(400).json("Nema svih potrebnih podataka");
         }
