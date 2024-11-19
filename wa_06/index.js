@@ -3,7 +3,7 @@ import fs from "fs/promises";
 
 const app = express();
 
-app.use(express());
+app.use(express.json());
 
 app.get("/zaposlenici", async (req, res) => {
     let pozicija_query = req.query.pozicija;
